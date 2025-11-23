@@ -19,6 +19,7 @@ pub fn run() {
             // Menu
             let menu = MenuBuilder::new(app)
                 .text("home", "Home")
+                .text("youtube", "YouTube")
                 .text("chatgpt", "ChatGPT")
                 .text("gemini", "Gemini")
                 .text("claude", "Claude")
@@ -49,6 +50,10 @@ pub fn run() {
                 match event.id().0.as_str() {
                     "home" => {
                         let _ = window.navigate(Url::parse(&home_url).expect("valid url"));
+                    }
+                    "youtube" => {
+                        let _ = window
+                            .navigate(Url::parse("https://www.youtube.com/").expect("valid url"));
                     }
                     "chatgpt" => {
                         let _ = window
