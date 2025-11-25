@@ -1,4 +1,7 @@
-use tauri::{menu::MenuBuilder, Manager, Url};
+use tauri::{
+    menu::{MenuBuilder, MenuItem, MenuItemBuilder},
+    Manager, Url,
+};
 
 #[tauri::command]
 fn navigate_to(app: tauri::AppHandle, url: String) -> Result<(), String> {
@@ -17,16 +20,76 @@ pub fn run() {
             // window.open_devtools();
 
             // Menu
-            let menu = MenuBuilder::new(app)
-                .text("home", "Home")
-                .text("youtube", "YouTube")
-                .text("chatgpt", "ChatGPT")
-                .text("gemini", "Gemini")
-                .text("claude", "Claude")
-                .text("grok", "Grok")
-                .text("deepseek", "DeepSeek")
-                .text("canva", "Canva")
-                .build()?;
+            // id, name, url
+
+            let home_url = if cfg!(debug_assertions) {
+                // dev mode
+                "http://localhost:3000"
+            } else {
+                // production build
+                "http://tauri.localhost/"
+            };
+
+            struct MenuItemData {
+                id: &'static str,
+                label: &'static str,
+                url: &'static str,
+            }
+            let menu_items = vec![
+                MenuItemData {
+                    id: "home",
+                    label: "Home",
+                    url: home_url,
+                },
+                MenuItemData {
+                    id: "youtube",
+                    label: "YouTube",
+                    url: "https://www.youtube.com/",
+                },
+                MenuItemData {
+                    id: "chatgpt",
+                    label: "ChatGPT",
+                    url: "https://chat.openai.com/",
+                },
+                MenuItemData {
+                    id: "gemini",
+                    label: "Gemini",
+                    url: "https://gemini.google.com/",
+                },
+                MenuItemData {
+                    id: "claude",
+                    label: "Claude",
+                    url: "https://claude.ai/",
+                },
+                MenuItemData {
+                    id: "grok",
+                    label: "Grok",
+                    url: "https://grok.com/",
+                },
+                MenuItemData {
+                    id: "deepseek",
+                    label: "DeepSeek",
+                    url: "https://chat.deepseek.com/",
+                },
+                // MenuItemData { id: "canva", label: "Canva", url: "https://www.canva.com/" }
+            ];
+
+            let menu_items_build: Vec<MenuItem<_>> = menu_items
+                .iter()
+                .map(|item| {
+                    MenuItemBuilder::new(item.label)
+                        .id(item.id)
+                        .build(app)
+                        .unwrap()
+                })
+                .collect();
+
+            let menu_items_refs: Vec<&dyn tauri::menu::IsMenuItem<_>> = menu_items_build
+                .iter()
+                .map(|item| item as &dyn tauri::menu::IsMenuItem<_>)
+                .collect();
+
+            let menu = MenuBuilder::new(app).items(&menu_items_refs).build()?;
 
             app.set_menu(menu.clone())?;
 
@@ -39,48 +102,14 @@ pub fn run() {
                 println!("URL: {:?}", w.url().unwrap());
 
                 let window = app_handle.get_webview_window("main").unwrap();
-                let home_url = if cfg!(debug_assertions) {
-                    // dev mode
-                    "http://localhost:3000"
-                } else {
-                    // production build
-                    "http://tauri.localhost/"
-                };
-                // let home_url = "http://tauri.localhost/";
 
-                match event.id().0.as_str() {
-                    "home" => {
-                        let _ = window.navigate(Url::parse(&home_url).expect("valid url"));
-                    }
-                    "youtube" => {
-                        let _ = window
-                            .navigate(Url::parse("https://www.youtube.com/").expect("valid url"));
-                    }
-                    "chatgpt" => {
-                        let _ = window
-                            .navigate(Url::parse("https://chat.openai.com/").expect("valid url"));
-                    }
-                    "gemini" => {
-                        let _ = window
-                            .navigate(Url::parse("https://gemini.google.com/").expect("valid url"));
-                    }
-                    "claude" => {
-                        let _ =
-                            window.navigate(Url::parse("https://claude.ai/").expect("valid url"));
-                    }
-                    "grok" => {
-                        let _ =
-                            window.navigate(Url::parse("https://grok.com/").expect("valid url"));
-                    }
-                    "deepseek" => {
-                        let _ = window
-                            .navigate(Url::parse("https://chat.deepseek.com/").expect("valid url"));
-                    }
-                    "canva" => {
-                        let _ = window
-                            .navigate(Url::parse("https://www.canva.com/").expect("valid url"));
-                    }
-                    _ => {}
+                // Dynamic menu item handling
+                let menu_item = menu_items
+                    .iter()
+                    .find(|item| item.id == event.id().0.as_str());
+                if let Some(item) = menu_item {
+                    let _ = window.navigate(Url::parse(item.url).expect("valid url"));
+                    return;
                 }
             });
 

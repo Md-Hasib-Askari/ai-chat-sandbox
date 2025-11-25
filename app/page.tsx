@@ -10,7 +10,6 @@ const apps = [
   { id: "claude", label: "Claude", url: "https://claude.ai/", icon: "🌤", accent: "from-amber-500 to-orange-600" },
   { id: "grok", label: "Grok", url: "https://grok.com/", icon: "🧠", accent: "from-fuchsia-500 to-purple-600" },
   { id: "deepseek", label: "DeepSeek", url: "https://chat.deepseek.com/", icon: "🔎", accent: "from-cyan-500 to-blue-600" },
-  { id: "canva", label: "Canva", url: "https://www.canva.com/", icon: "🎨", accent: "from-green-500 to-lime-600" },
 ];
 
 export default function Home() {
