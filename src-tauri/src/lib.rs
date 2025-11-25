@@ -25,6 +25,7 @@ pub fn run() {
                 .text("claude", "Claude")
                 .text("grok", "Grok")
                 .text("deepseek", "DeepSeek")
+                .text("canva", "Canva")
                 .build()?;
 
             app.set_menu(menu.clone())?;
@@ -74,6 +75,10 @@ pub fn run() {
                     "deepseek" => {
                         let _ = window
                             .navigate(Url::parse("https://chat.deepseek.com/").expect("valid url"));
+                    }
+                    "canva" => {
+                        let _ = window
+                            .navigate(Url::parse("https://www.canva.com/").expect("valid url"));
                     }
                     _ => {}
                 }
